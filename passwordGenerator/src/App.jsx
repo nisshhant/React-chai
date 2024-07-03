@@ -7,13 +7,13 @@ function App() {
   const [symAllowed, setSymAllowed] = useState(false);
   const [password, setPass] = useState('');
 
+  const passwordRef = useRef(null);
 
-  const passwordref = useRef()
   const Passgen = useCallback(() => {  
     let pass = '';
     let str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    if(numAllowed) str += '1234567890';
-    if(symAllowed) str += '!@#$%^&*()_+-=[]{};:,.<>?';
+    if (numAllowed) str += '1234567890';
+    if (symAllowed) str += '!@#$%^&*()_+-=[]{};:,.<>?';
     
     for (let i = 0; i < length; i++) {
       let char = Math.floor(Math.random() * str.length);
@@ -21,18 +21,19 @@ function App() {
     }
 
     setPass(pass);
-  }, [numAllowed, length, symAllowed,setLength]);
-//
+  }, [numAllowed, length, symAllowed]);
 
-const copyPasswordToClipboard = useCallback(()=>{
-  passwordref.current?.select()
-  passwordref.current?.setSelectionRange(0,length)
-  window.navigator.clipboard.writeText(password)
-},[password])
+  const copyPasswordToClipboard = useCallback(() => {
+    if (passwordRef.current) {
+      passwordRef.current.select();
+      passwordRef.current.setSelectionRange(0, length);
+      window.navigator.clipboard.writeText(password);
+    }
+  }, [password, length]);
 
-  useEffect(()=> {
-    Passgen()
-  },[numAllowed, length, symAllowed, Passgen])
+  useEffect(() => {
+    Passgen();
+  }, [numAllowed, length, symAllowed, Passgen]);
 
   return (
     <>
@@ -45,12 +46,12 @@ const copyPasswordToClipboard = useCallback(()=>{
             type='text'
             value={password}
             className='outline-none w-full py-1 px-3' 
-            placeholder='password' 
+            placeholder='Password' 
             readOnly
-            ref = {passwordref}
+            ref={passwordRef}
           />
           <button 
-            className='bg-gray-500 ml-2 rounded-none text-black p-3' 
+            className='bg-gray-500 ml-2 rounded-none text-black p-3 transition duration-300 ease-in-out transform hover:bg-gray-300 focus:bg-gray-500'
             onClick={copyPasswordToClipboard}
           > 
             Copy 
@@ -64,8 +65,8 @@ const copyPasswordToClipboard = useCallback(()=>{
             max='34' 
             value={length}  
             className='w-full cursor-pointer'
-            onChange={(e)=>{
-              setLength(e.target.value)
+            onChange={(e) => {
+              setLength(Number(e.target.value));
             }}
           />
         </div>
@@ -74,8 +75,8 @@ const copyPasswordToClipboard = useCallback(()=>{
             <input 
               type='checkbox' 
               defaultChecked={numAllowed}
-              onChange={()=>{
-                setNumAllowed(prev => !prev)
+              onChange={() => {
+                setNumAllowed(prev => !prev);
               }}
             /> 
             Include Numbers
@@ -86,8 +87,8 @@ const copyPasswordToClipboard = useCallback(()=>{
             <input 
               type='checkbox' 
               defaultChecked={symAllowed}
-              onChange={()=>{
-                setSymAllowed(prev => !prev)
+              onChange={() => {
+                setSymAllowed(prev => !prev);
               }}
             /> 
             Include Symbols
